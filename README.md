@@ -1,84 +1,162 @@
-n8n Random.org Custom Node (Onfly Test)
+# n8n-nodes-random
 
-Random → operação True Random Number Generator usando o endpoint da Random.org.
-Gera um inteiro aleatório entre Min e Max (inclusive) e retorna no campo result.
+[![n8n](https://img.shields.io/badge/built%20for-n8n-1A82E2?logo=n8n\&logoColor=fff)](#) [![license](https://img.shields.io/badge/license-MIT-green.svg)](#)
 
-Requisitos
+> ⚠️ **Aviso**
+> Este repositório faz parte de um **desafio técnico da Onfly**.
+> Objetivo: implementar um **custom node** no n8n que gera números randômicos consumindo a API do [Random.org](https://www.random.org/).
 
-Node.js 22 LTS (para build do pacote, se necessário)
+---
 
-Docker + Docker Compose (para rodar o n8n e Postgres)
+## 📖 Desafio
 
-Estrutura do projeto
-custom-nodes/n8n-nodes-random/   ← pasta local do conector
-  ├─ src/
-  │  ├─ index.ts
-  │  └─ nodes/Random.node.ts
-  ├─ dist/                       ← build gerado
-  ├─ icons/random.svg
-  ├─ package.json
-  └─ tsconfig.json
-docker-compose.yml                ← sobe n8n + Postgres e monta os custom nodes
+Como desenvolvedor, você deve criar um conector personalizado para a plataforma de automação n8n.
+Esse conector permite estender a capacidade da ferramenta de workflows low-code, tornando a experiência dos usuários mais simples e prática.
 
-Como rodar localmente
-1) Instalar dependências e buildar (opcional se já existir dist/)
+**O que iremos construir:**
+Um **node do n8n** chamado **Random**, que recebe um input de **mínimo** e **máximo** (inteiros inclusivos) e retorna um número aleatório obtido pela API do Random.org.
+
+---
+
+## 📋 Pré-requisitos técnicos
+
+* **Node.js 22 (LTS)**
+* **Docker + Docker Compose** para subir o n8n e o Postgres
+
+Infra esperada:
+
+* n8n instalado com Docker (versão self-hosted mais recente: `@latest = 1.85.4`)
+* Banco de dados Postgres
+* Desenvolvimento programático de um custom node
+* Node instalado e rodando localmente
+
+---
+
+## ⚙️ Requisitos funcionais
+
+* O conector deve se chamar **Random** e possuir uma única operação: **True Random Number Generator**.
+* A operação deve possuir dois inputs: **Min** e **Max** (apenas números).
+* O método `execute` deve usar obrigatoriamente o endpoint da Random.org:
+
+  ```
+  https://www.random.org/integers/?num=1&min=1&max=60&col=1&base=10&format=plain&rnd=new
+  ```
+* O retorno esperado no formato JSON:
+
+  ```json
+  { "result": 42, "min": 1, "max": 60, "source": "random.org" }
+  ```
+
+---
+
+## 🎨 Requisitos não funcionais
+
+* Usar **nomes amigáveis** para os parâmetros (`displayName` e `description` claros e explicativos).
+* Adicionar um **ícone SVG** para o node (ex.: `icons/random.svg`).
+
+---
+
+## 🗂️ Estrutura do projeto
+
+```
+custom-nodes/n8n-nodes-random/
+├─ src/
+│  ├─ index.ts
+│  └─ nodes/Random.node.ts
+├─ dist/           ← build gerado
+├─ icons/random.svg
+├─ package.json
+└─ tsconfig.json
+docker-compose.yml ← sobe n8n + Postgres e monta os custom nodes
+```
+
+---
+
+## 🚀 Como rodar localmente
+
+### 1. Instalar dependências e buildar (opcional)
+
+```bash
 cd custom-nodes/n8n-nodes-random
 npm install
 npm run build   # só se precisar gerar o dist/
 cd ../../
+```
 
-2) Subir a stack com Docker
+### 2. Subir a stack com Docker
+
+```bash
 docker compose up -d
+```
 
-3) Acessar o n8n
+### 3. Acessar o n8n
 
-http://localhost:5678
+Abra [http://localhost:5678](http://localhost:5678) no navegador.
 
-O pacote é montado em /home/node/.n8n/custom.
-O n8n detecta automaticamente os nodes em dist/ pelo campo "n8n.nodes" do package.json.
+O pacote é montado em `/home/node/.n8n/custom`. O n8n detecta automaticamente os nodes em `dist/` pelo campo `n8n.nodes` do `package.json`.
 
-Como usar no n8n
+---
 
-Procure pelo node Random na paleta.
+## 🔌 Como usar no n8n
 
-Operação: True Random Number Generator
+* Procure pelo node **Random** na paleta.
+* Operação: **True Random Number Generator**
+* Parâmetros:
 
-Parâmetros:
+  * **Min** → inteiro mínimo (ex.: `1`)
+  * **Max** → inteiro máximo (ex.: `60`)
 
-Min → inteiro mínimo (ex.: 1)
+**Resultado disponível em:**
 
-Max → inteiro máximo (ex.: 60)
-
-Resultado disponível em:
-
+```twig
 {{$json.result}}
+```
 
-Detalhes de implementação
+---
 
-Endpoint chamado:
+## 🛠️ Detalhes de implementação
 
-https://www.random.org/integers/?num=1&min=<MIN>&max=<MAX>&col=1&base=10&format=plain&rnd=new
+* **Validações**:
+
+  * `Min` e `Max` devem ser inteiros
+  * `Min ≤ Max`
+* **Retorno esperado**:
+
+  ```json
+  { "result": 42, "min": 1, "max": 60, "source": "random.org" }
+  ```
+* Observação: em alguns testes o retorno pode aparecer apenas como número cru vindo da API.
+
+---
+
+## 🧪 Teste rápido
+
+1. Crie um workflow: **Manual Trigger → Random**
+2. Configure **Min** e **Max**
+3. Execute e verifique a saída no editor do n8n
+
+---
 
 
-Validações:
 
-Min e Max precisam ser inteiros
+✍️ Notas sobre o desenvolvimento
 
-Min ≤ Max
+Este projeto foi desenvolvido como parte de um desafio técnico da Onfly.
+Foi bem interessante explorar os custom nodes do n8n, entender a estrutura do pacote e trabalhar com a API do Random.org
+.
 
-Retorno esperado (formato JSON do node):
-{
-  "result": 42,
-  "min": 1,
-  "max": 60,
-  "source": "random.org"
-}
+Principais aprendizados:
+
+Estrutura do projeto de custom nodes no n8n.
+
+Integração direta com um serviço externo via HTTP (Random.org).
+
+Configuração de ambiente com Docker Compose + Postgres.
+
+Ajustes de parâmetros amigáveis e inclusão de ícone SVG para o node.
+
+No geral, foi um desafio legal e deu pra praticar bastante a parte de infra, TypeScript e integração.
+
+---
 
 
- Observação: em alguns testes, o retorno pode aparecer apenas como número cru vindo da API.
-
- Teste rápido
-
-Crie um workflow com Manual Trigger → Random
-
-Rode e verifique a saída do node
